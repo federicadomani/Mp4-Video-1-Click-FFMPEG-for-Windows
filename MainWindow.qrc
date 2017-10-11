@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/MainWindow">
+        <file>Resources/favicon_source.png</file>
+    </qresource>
+</RCC>
