@@ -29,7 +29,7 @@ static ITaskbarList3* s_pTaskBarlist = NULL;
 
 /////////////////////////////////////////////////////////
 
-#define VERSION_FFMPEG_WINDOWS_1_CLICK 100
+#define VERSION_FFMPEG_WINDOWS_1_CLICK 110
 
 
 MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
@@ -393,12 +393,16 @@ bool MainWindow::isConsoleRequested(const QStringList& lstCommandArgs)
 
 static bool isWindows64bitCompliant()
 {
+	/*
 	wchar_t buf[65536];
 	UINT nRes = ::GetSystemWow64DirectoryW(buf, 65536);
 
 	bool b64bit = (nRes != 0);
 
 	return b64bit;
+	*/
+
+	return false; //TODO: to reduce installer size from ~40Mb to ~20Mb we disable 64-bit ffmpeg temporarily
 }
 
 void MainWindow::analyseBeforeConvertToStdMp4(const QString& strInputFilePath)
@@ -1069,6 +1073,13 @@ void MainWindow::onExeConvertFinished(int exitCode, QProcess::ExitStatus exitSta
 
 				if (m_lstActualArgs[7] == "h264_qsv")
 				{
+					m_lstActualShowArgs[7] = m_lstActualArgs[7] = "libx264";
+					m_lstActualShowArgs[11] = m_lstActualArgs[11] = "veryfast";
+				}
+
+				/* // TODO: h264_nvenc causes AV under Windows 7
+				if (m_lstActualArgs[7] == "h264_qsv")
+				{
 					m_lstActualShowArgs[7] = m_lstActualArgs[7] = "h264_nvenc";
 					m_lstActualShowArgs[11] = m_lstActualArgs[11] = "default"; // NVENC has its own presets
 				}
@@ -1080,6 +1091,7 @@ void MainWindow::onExeConvertFinished(int exitCode, QProcess::ExitStatus exitSta
 						m_lstActualShowArgs[11] = m_lstActualArgs[11] = "veryfast";
 					}
 				}
+				*/
 
 				if (QFileInfo(strExeFile).exists() && QFileInfo(strExeFile).isExecutable())
 				{
