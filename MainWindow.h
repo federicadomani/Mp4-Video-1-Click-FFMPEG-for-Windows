@@ -84,6 +84,8 @@ protected:
 	void analyzeProcessOutputPhase2(const QString& strOut);
 	void killExtProcessIfRunning();
 
+	QString m_strStdoutPart;
+	void parseFFMPEGCommandLineOutput(int nAnalizePhase);
 
 private:
 

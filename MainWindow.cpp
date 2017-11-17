@@ -29,7 +29,7 @@ static ITaskbarList3* s_pTaskBarlist = NULL;
 
 /////////////////////////////////////////////////////////
 
-#define VERSION_FFMPEG_WINDOWS_1_CLICK 110
+#define VERSION_FFMPEG_WINDOWS_1_CLICK 120
 
 
 MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
@@ -91,7 +91,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
 
 			play(QCoreApplication::arguments()[2]);
 		}
-		if (isConsoleRequested(QCoreApplication::arguments()))
+		else if (isConsoleRequested(QCoreApplication::arguments()))
 		{
 			createVisualLayout(VisualLayout_Console);
 
@@ -190,7 +190,7 @@ void MainWindow::createVisualLayout(VisualLayout vl)
 
 	m_pLayoutWidget->layout()->itemAt(3)->widget()->setMinimumHeight(256);
 
-	m_pLayoutWidget->layout()->itemAt(3)->widget()->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+	m_pLayoutWidget->layout()->itemAt(3)->widget()->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
 
 	qobject_cast<QTextEdit*>(m_pLayoutWidget->layout()->itemAt(3)->widget())->setLineWrapMode(QTextEdit::NoWrap);
 	qobject_cast<QTextEdit*>(m_pLayoutWidget->layout()->itemAt(3)->widget())->setHtml("");
@@ -198,9 +198,14 @@ void MainWindow::createVisualLayout(VisualLayout vl)
 
 	pLayout->addStretch(0);
 
+	m_pLayoutWidget->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum));
+
 	setCentralWidget(m_pLayoutWidget);
 
 	m_pLayoutWidget->layout()->itemAt(3)->widget()->hide();
+
+	m_pLayoutWidget->adjustSize();
+	adjustSize();
 
 	m_pConsoleTextEdit = qobject_cast<QTextEdit*>(m_pLayoutWidget->layout()->itemAt(3)->widget());
 	m_pShowMorePushButton = qobject_cast<QPushButton*>(m_pLayoutWidget->layout()->itemAt(1)->widget());
@@ -311,6 +316,9 @@ void MainWindow::onToggleShowHideDetails()
 		m_pConsoleTextEdit->show();
 		m_pShowMorePushButton->setText(tr("Hide details..."));
 	}
+
+	m_pLayoutWidget->adjustSize();
+	adjustSize();
 }
 
 bool MainWindow::isFFMPEGInputFile(const QString& strInputFilePath)
@@ -1127,18 +1135,8 @@ void MainWindow::onExeConvertReadyReadStandardOutput()
 	if (!m_pExtProgProcess)
 		return;
 
-	QByteArray ba = m_pExtProgProcess->readAllStandardOutput();
-	QString strOut = QString::fromLatin1(ba.data(), ba.size()).trimmed();
-
-	m_pConsoleTextEdit->append(strOut);
-
-	QStringList lstOutParts = strOut.split(QChar('\r'), QString::SkipEmptyParts);
-
-	QString strPart;
-	foreach (strPart, lstOutParts)
-	{
-		analyzeProcessOutputPhase2(strPart);
-	}
+	m_strStdoutPart = "";
+	parseFFMPEGCommandLineOutput(2);
 }
 
 void MainWindow::onExePlayStarted()
@@ -1186,10 +1184,8 @@ void MainWindow::onExePlayReadyReadStandardOutput()
 	if (!m_pExtProgProcess)
 		return;
 
-	QByteArray ba = m_pExtProgProcess->readAllStandardOutput();
-	QString strOut = QString::fromLatin1(ba.data(), ba.size()).trimmed();
-
-	m_pConsoleTextEdit->append(strOut);
+	m_strStdoutPart = "";
+	parseFFMPEGCommandLineOutput(0);
 }
 
 void MainWindow::analyzeProcessOutputPhase2(const QString& strOut)
@@ -1246,6 +1242,81 @@ QString MainWindow::findBetweenStringsReverse(const QString& strOut, const QStri
 	return "";
 }
 
+void MainWindow::parseFFMPEGCommandLineOutput(int nAnalizePhase)
+{
+	QByteArray ba = m_pExtProgProcess->readAllStandardOutput();
+	QString strOut = m_strStdoutPart + QString::fromLatin1(ba.data(), ba.size());
+
+	int nSlashRRev = strOut.lastIndexOf("\r\n");
+
+	if (nSlashRRev == -1)
+	{
+		m_strStdoutPart += strOut;
+
+		QStringList lstOutParts2 = strOut.split(QChar('\r'), QString::SkipEmptyParts);
+		QString strPart2;
+		foreach(strPart2, lstOutParts2)
+		{
+			if (nAnalizePhase == 1)
+				analyzeProcessOutputPhase1(strPart2);
+			else if (nAnalizePhase == 2)
+				analyzeProcessOutputPhase2(strPart2);
+
+			m_pConsoleTextEdit->append(strPart2);
+		}
+	}
+	else if (nSlashRRev == (strOut.length() - 2)) // natural number of lines
+	{
+		strOut = m_strStdoutPart + strOut;
+
+		QStringList lstOutParts = strOut.split("\r\n", QString::SkipEmptyParts);
+
+		QString strPart;
+		foreach(strPart, lstOutParts)
+		{
+			QStringList lstOutParts2 = strPart.split(QChar('\r'), QString::SkipEmptyParts);
+			QString strPart2;
+			foreach(strPart2, lstOutParts2)
+			{
+				if (nAnalizePhase == 1)
+					analyzeProcessOutputPhase1(strPart2);
+				else if (nAnalizePhase == 2)
+					analyzeProcessOutputPhase2(strPart2);
+
+				m_pConsoleTextEdit->append(strPart2);
+			}
+		}
+
+		m_strStdoutPart = "";
+	}
+	else
+	{
+		strOut = m_strStdoutPart + strOut;
+
+		QStringList lstOutParts = strOut.split("\r\n", QString::SkipEmptyParts);
+
+		QString strPart;
+		for (int i = 0; i <= lstOutParts.size() - 2; ++i)
+		{
+			strPart = lstOutParts[i];
+
+			QStringList lstOutParts2 = strPart.split(QChar('\r'), QString::SkipEmptyParts);
+			QString strPart2;
+			foreach(strPart2, lstOutParts2)
+			{
+				if (nAnalizePhase == 1)
+					analyzeProcessOutputPhase1(strPart2);
+				else if (nAnalizePhase == 2)
+					analyzeProcessOutputPhase2(strPart2);
+
+				m_pConsoleTextEdit->append(strPart2);
+			}
+		}
+
+		m_strStdoutPart = lstOutParts[lstOutParts.size() - 1];
+	}
+}
+
 void MainWindow::onExeAnalyseReadyReadStandardOutput()
 {
 	qDebug() << Q_FUNC_INFO;
@@ -1253,18 +1324,8 @@ void MainWindow::onExeAnalyseReadyReadStandardOutput()
 	if (!m_pExtProgProcess)
 		return;
 
-	QByteArray ba = m_pExtProgProcess->readAllStandardOutput();
-	QString strOut = QString::fromLatin1(ba.data(), ba.size()).trimmed();
-
-	m_pConsoleTextEdit->append(strOut);
-
-	QStringList lstOutParts = strOut.split(QChar('\r'), QString::SkipEmptyParts);
-
-	QString strPart;
-	foreach (strPart, lstOutParts)
-	{
-		analyzeProcessOutputPhase1(strPart);
-	}
+	m_strStdoutPart = "";
+	parseFFMPEGCommandLineOutput(1);
 }
 
 qint64 MainWindow::durationWordToFrames(const QString& strDurationValue, const QString& strFpsValue)

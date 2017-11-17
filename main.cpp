@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 
 	qDebug() << Q_FUNC_INFO << "QApplication created";
 
-	MainWindow w(0, Qt::WindowStaysOnTopHint);
+	MainWindow w(0);
 	w.show();
 	w.activateWindow();
 	w.raise();
