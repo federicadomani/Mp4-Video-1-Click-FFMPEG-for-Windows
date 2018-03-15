@@ -1,3 +1,8 @@
+#define VERSION_FFMPEG_WINDOWS_1_CLICK 122
+#define VERSION_FFMPEG_ITSELF 342
+
+/////////////////////////////////////////////////////////
+
 #include "MainWindow.h"
 
 #include <QCoreApplication>
@@ -28,8 +33,6 @@
 static ITaskbarList3* s_pTaskBarlist = NULL;
 
 /////////////////////////////////////////////////////////
-
-#define VERSION_FFMPEG_WINDOWS_1_CLICK 120
 
 
 MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
@@ -286,6 +289,7 @@ void MainWindow::onTriggeredAbout()
 	const QString trCompanyNameJuridical = MainWindow::tr("Open Source Developer Federica Domani (federicadomani.wordpress.com)");
 
 	QString strVer = stringVersion(VERSION_FFMPEG_WINDOWS_1_CLICK);
+	QString strVerFFMPEG = stringVersion(VERSION_FFMPEG_ITSELF);
 	//QString strHome = strStyleCSS + strHomeHttp;
 	QString strHomeM = strStyleCSS + strHomeHttpM;
 
@@ -294,7 +298,7 @@ void MainWindow::onTriggeredAbout()
 	msgBox.setTextFormat(Qt::RichText);
 	msgBox.addButton(QMessageBox::Close);
 	msgBox.setWindowTitle(tr("About - Mp4 Video 1 Click"));
-	msgBox.setText(tr("<b>Mp4 Video 1 Click</b>,<br/>version <b>%1</b>,<br/>build %2 - %3.<br/><br/>Visit our&nbsp;site:<br/>%4.<br/><br/>Donate bitcoins to 1ENPhPJ1k8q3k2SWqieeNFdLG4Mp1zXFkc.<br/><br/>").arg(strVer).arg(__DATE__).arg(__TIME__).arg(strHomeM));
+	msgBox.setText(tr("<b>Mp4 Video 1 Click</b>,<br/>version <b>%1</b> (<b>FFMPEG</b> version <b>%2</b>),<br/>build %3 - %4.<br/><br/>Visit our&nbsp;site:<br/>%5.<br/><br/>Donate bitcoins to 1ENPhPJ1k8q3k2SWqieeNFdLG4Mp1zXFkc.<br/><br/>").arg(strVer).arg(strVerFFMPEG).arg(__DATE__).arg(__TIME__).arg(strHomeM));
 	msgBox.setInformativeText("<small>" + tr("Copyright (c) 2017-2018 ") + trCompanyNameJuridical + ".</small>");
 
 	QIcon icon(":/MainWindow/Resources/favicon_source.png");
@@ -858,7 +862,7 @@ void MainWindow::convertToStdMp4()
 	m_lstConstActualConvertArgs << "-i" << "INPUT"
 		<< "-vf" << "curves=master='%1/0.00 %2/0.01 %3/0.05 %4/0.10 %5/0.50 %6/0.90 %7/0.95 %8/0.99 %9/1.00', format=pix_fmts=yuv420p, scale=trunc(oh*a/2)*2:%10:interl=-1:sws_flags=fast_bilinear"
 		<< "-af" << "aresample=out_channel_layout=FL+FR,compand=attacks=0.3 0.3:decays=0.8 0.8:points=-90/-900 -70/-50 %1/-12 %2/0 0/0 100/0:soft-knee=0.01:gain=0:volume=-90:delay=0.8"
-		<< "-c:v" << "VIDEOCODEC" << "-b:v" << bvForHeight((m_nHeight > 0) ? m_nHeight : m_nHeightFromVideo) << "-preset" << "PRESET" << "-profile:v" << profileForHeight((m_nHeight > 0) ? m_nHeight : m_nHeightFromVideo) << "-level" << levelForHeight((m_nHeight > 0) ? m_nHeight : m_nHeightFromVideo)
+		<< "-c:v" << "VIDEOCODEC" << "ENSUREHW1" << "ENSUREHW2" << "-b:v" << bvForHeight((m_nHeight > 0) ? m_nHeight : m_nHeightFromVideo) << "-preset" << "PRESET" << "-profile:v" << profileForHeight((m_nHeight > 0) ? m_nHeight : m_nHeightFromVideo) << "-level" << levelForHeight((m_nHeight > 0) ? m_nHeight : m_nHeightFromVideo)
 		<< "-c:a" << "aac" << "-ac" << "2" << "-b:a" << baForHeight((m_nHeight > 0) ? m_nHeight : m_nHeightFromVideo)
 		<< "-c:s" << "mov_text"
 		<< "-y" << "OUTPUT";
@@ -902,14 +906,16 @@ void MainWindow::convertToStdMp4()
 	}
 
 	m_lstActualArgs[5] = m_lstActualArgs[5].arg(m_fMeanVolume).arg(m_fMaxVolume);
-	m_lstActualArgs[25] = strOutputFilePath;
+	m_lstActualArgs[27] = strOutputFilePath;
 
 	m_lstActualShowArgs = m_lstActualArgs;
 	m_lstActualShowArgs[1] = QString("<b><font color='blue'>%1</font></b>").arg(QFileInfo(m_lstActualArgs[1]).fileName());
-	m_lstActualShowArgs[25] = QString("<b><font color='green'>%1</font></b>").arg(QFileInfo(m_lstActualArgs[25]).fileName());
+	m_lstActualShowArgs[27] = QString("<b><font color='green'>%1</font></b>").arg(QFileInfo(m_lstActualArgs[27]).fileName());
 
 	m_lstActualShowArgs[7] = m_lstActualArgs[7] = "h264_qsv";
-	m_lstActualShowArgs[11] = m_lstActualArgs[11] = "veryfast";
+	m_lstActualShowArgs[8] = m_lstActualArgs[8] = "-init_hw_device";
+	m_lstActualShowArgs[9] = m_lstActualArgs[9] = "qsv:hw";
+	m_lstActualShowArgs[13] = m_lstActualArgs[13] = "veryfast";
 
 	if (QFileInfo(strExeFile).exists() && QFileInfo(strExeFile).isExecutable())
 	{
@@ -1082,21 +1088,23 @@ void MainWindow::onExeConvertFinished(int exitCode, QProcess::ExitStatus exitSta
 				if (m_lstActualArgs[7] == "h264_qsv")
 				{
 					m_lstActualShowArgs[7] = m_lstActualArgs[7] = "libx264";
-					m_lstActualShowArgs[11] = m_lstActualArgs[11] = "veryfast";
+					m_lstActualShowArgs[8] = m_lstActualArgs[8] = "-tune";
+					m_lstActualShowArgs[9] = m_lstActualArgs[9] = "film";
+					m_lstActualShowArgs[13] = m_lstActualArgs[13] = "veryfast";
 				}
 
 				/* // TODO: h264_nvenc causes AV under Windows 7
 				if (m_lstActualArgs[7] == "h264_qsv")
 				{
 					m_lstActualShowArgs[7] = m_lstActualArgs[7] = "h264_nvenc";
-					m_lstActualShowArgs[11] = m_lstActualArgs[11] = "default"; // NVENC has its own presets
+					m_lstActualShowArgs[13] = m_lstActualArgs[13] = "default"; // NVENC has its own presets
 				}
 				else
 				{
 					if (m_lstActualArgs[7] == "h264_nvenc")
 					{
 						m_lstActualShowArgs[7] = m_lstActualArgs[7] = "libx264";
-						m_lstActualShowArgs[11] = m_lstActualArgs[11] = "veryfast";
+						m_lstActualShowArgs[13] = m_lstActualArgs[13] = "veryfast";
 					}
 				}
 				*/
