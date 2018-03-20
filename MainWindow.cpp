@@ -1,4 +1,4 @@
-#define VERSION_FFMPEG_WINDOWS_1_CLICK 122
+#define VERSION_FFMPEG_WINDOWS_1_CLICK 123
 #define VERSION_FFMPEG_ITSELF 342
 
 /////////////////////////////////////////////////////////
@@ -298,7 +298,7 @@ void MainWindow::onTriggeredAbout()
 	msgBox.setTextFormat(Qt::RichText);
 	msgBox.addButton(QMessageBox::Close);
 	msgBox.setWindowTitle(tr("About - Mp4 Video 1 Click"));
-	msgBox.setText(tr("<b>Mp4 Video 1 Click</b>,<br/>version <b>%1</b> (<b>FFMPEG</b> version <b>%2</b>),<br/>build %3 - %4.<br/><br/>Visit our&nbsp;site:<br/>%5.<br/><br/>Donate bitcoins to 1ENPhPJ1k8q3k2SWqieeNFdLG4Mp1zXFkc.<br/><br/>").arg(strVer).arg(strVerFFMPEG).arg(__DATE__).arg(__TIME__).arg(strHomeM));
+	msgBox.setText(tr("<b>Mp4 Video 1 Click</b> version <b>%1</b><br/>(<b>FFMPEG</b> version <b>%2</b> with Intel hardware encoding supported).<br/>Build %3 - %4.<br/><br/>Visit our&nbsp;site:<br/>%5.<br/><br/>Donate bitcoins to 1ENPhPJ1k8q3k2SWqieeNFdLG4Mp1zXFkc.<br/><br/>").arg(strVer).arg(strVerFFMPEG).arg(__DATE__).arg(__TIME__).arg(strHomeM));
 	msgBox.setInformativeText("<small>" + tr("Copyright (c) 2017-2018 ") + trCompanyNameJuridical + ".</small>");
 
 	QIcon icon(":/MainWindow/Resources/favicon_source.png");
