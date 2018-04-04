@@ -1,4 +1,4 @@
-#define VERSION_FFMPEG_WINDOWS_1_CLICK 123
+#define VERSION_FFMPEG_WINDOWS_1_CLICK 127
 #define VERSION_FFMPEG_ITSELF 342
 
 /////////////////////////////////////////////////////////
@@ -436,7 +436,7 @@ void MainWindow::analyseBeforeConvertToStdMp4(const QString& strInputFilePath)
 	QString strWorkingDir = fiInputFile.absolutePath();
 
 	m_lstConstDetectLuminosityVolumeArgs << "-i" << "INPUT"
-		<< "-vf" << "select='eq(pict_type\\,I)',crop=2/3*in_w:2/3*in_h,palettegen=max_colors=256:reserve_transparent=0:stats_mode=full"
+		<< "-vf" << "select='eq(pict_type\\,I)',crop=3/5*in_w:3/5*in_h,palettegen=max_colors=256:reserve_transparent=0:stats_mode=full"
 		<< "-vsync" << "vfr" << "PALETTE.png"
 		<< "-af" << "volumedetect"
 		<< "-c:v" << "copy"
