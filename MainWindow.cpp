@@ -1,4 +1,4 @@
-#define VERSION_FFMPEG_WINDOWS_1_CLICK 127
+#define VERSION_FFMPEG_WINDOWS_1_CLICK 128
 #define VERSION_FFMPEG_ITSELF 342
 
 /////////////////////////////////////////////////////////
@@ -905,6 +905,10 @@ void MainWindow::convertToStdMp4()
 		}
 	}
 
+	QFileInfo fiOutputFile(strOutputFilePath);
+
+	setWindowTitle(tr("%1 -> %2 - Mp4 Video 1 Click").arg(fiInputFile.fileName()).arg(fiOutputFile.fileName()));
+
 	m_lstActualArgs[5] = m_lstActualArgs[5].arg(m_fMeanVolume).arg(m_fMaxVolume);
 	m_lstActualArgs[27] = strOutputFilePath;
 
@@ -954,6 +958,10 @@ void MainWindow::convertToStdMp3()
 	QStringList lstFileNameParts = strFileName.split(QChar('.'), QString::SkipEmptyParts);
 	QString strBaseName = lstFileNameParts.join(QChar('-'));
 	QString strOutputFilePath = fiInputFilePath.absolutePath() + QChar('/') + strBaseName + QChar('-') + QString("loudness.mp3");
+
+	QFileInfo fiOutputFile(strOutputFilePath);
+
+	setWindowTitle(tr("%1 -> %2 - Mp4 Video 1 Click").arg(fiInputFile.fileName()).arg(fiOutputFile.fileName()));
 
 	m_lstActualArgs[3] = m_lstActualArgs[3].arg(m_fMeanVolume).arg(m_fMaxVolume);
 	m_lstActualArgs[11] = strOutputFilePath;
