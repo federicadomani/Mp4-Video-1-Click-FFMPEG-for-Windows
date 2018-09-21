@@ -1,4 +1,4 @@
-#define VERSION_FFMPEG_WINDOWS_1_CLICK 128
+#define VERSION_FFMPEG_WINDOWS_1_CLICK 129
 #define VERSION_FFMPEG_ITSELF 342
 
 /////////////////////////////////////////////////////////
