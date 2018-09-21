@@ -10,4 +10,4 @@ Hardware acceleration is used where possible!
 
 ## License: GPLv3
 
-This is a mirror site for [Mp4 Video 1 Click](https://sourceforge.net/projects/mp4video1click/).
+Setup binaries for Windows can be downloaded from the main [site](https://sourceforge.net/projects/mp4video1click/).
