@@ -10,4 +10,6 @@ Hardware acceleration is used where possible!
 
 ## License: GPLv3
 
-Setup binaries for Windows can be downloaded from the main [site](https://sourceforge.net/projects/mp4video1click/).
+This is a source-only mirror. Windows installer binaries can be downloaded from the main [site](https://sourceforge.net/projects/mp4video1click/).
+
+Also, for your convenience, the latest version of Windows installer can be downloaded [here](https://dl.dropboxusercontent.com/s/atn7gtrvabsortw/Setup_Mp4Video1Click_1_4_0_0.exe).
