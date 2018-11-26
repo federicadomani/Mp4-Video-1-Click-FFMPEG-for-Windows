@@ -62,12 +62,14 @@ protected:
 	QString fullPathNameToExecutable(const QString& strNameExt, bool b64 = false);
 	QString fullDirNameToExecutable(const QString& strNameExt, bool b64 = false);
 	bool isConvertToStdMp4Requested(const QStringList& lstCommandArgs);
+	bool isTranscodeToStdMp4Requested(const QStringList& lstCommandArgs);
 	bool isExtractNormalizedMp3Requested(const QStringList& lstCommandArgs);
 	bool isPlayRequested(const QStringList& lstCommandArgs);
 	bool isConsoleRequested(const QStringList& lstCommandArgs);
 	void analyseBeforeConvertToStdMp4(const QString& strInputFilePath);
 	void analyseBeforeExtractNormalizedMp3(const QString& strInputFilePath);
 	void convertToStdMp4();
+	void transcodeToStdMp4();
 	void convertToStdMp3();
 	void convertToMpegDashMp4();
 	void play(const QString& strInputFilePath);
@@ -133,6 +135,7 @@ private:
 
 	bool m_bDuringClose;
 	bool m_bExtractMp3;
+	bool m_bTranscodeOnly;
 
 	qint64 m_nCurrentFrames;
 };

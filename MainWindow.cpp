@@ -1,4 +1,4 @@
-#define VERSION_FFMPEG_WINDOWS_1_CLICK 140
+#define VERSION_FFMPEG_WINDOWS_1_CLICK 142
 #define VERSION_FFMPEG_ITSELF 401
 
 /////////////////////////////////////////////////////////
@@ -52,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
 	,	m_bDuringClose(false)
 	,	m_nCurrentFrames(0)
 	,	m_bExtractMp3(false)
+	,   m_bTranscodeOnly(false)
 {
 
 	if (s_pTaskBarlist == NULL)
@@ -81,6 +82,13 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
 			analyseBeforeConvertToStdMp4(QCoreApplication::arguments()[3]);
 		}
 		else
+		if (isTranscodeToStdMp4Requested(QCoreApplication::arguments()))
+		{
+			m_bTranscodeOnly = true;
+			createVisualLayout(VisualLayout_Convert);
+			transcodeToStdMp4();
+		}
+		else
 		if (isExtractNormalizedMp3Requested(QCoreApplication::arguments()))
 		{
 			m_bExtractMp3 = true;
@@ -91,13 +99,11 @@ MainWindow::MainWindow(QWidget *parent, Qt::WindowFlags flags)
 		if (isPlayRequested(QCoreApplication::arguments()))
 		{
 			createVisualLayout(VisualLayout_Play);
-
 			play(QCoreApplication::arguments()[2]);
 		}
 		else if (isConsoleRequested(QCoreApplication::arguments()))
 		{
 			createVisualLayout(VisualLayout_Console);
-
 			console(QCoreApplication::arguments()[2], QCoreApplication::arguments()[3]);
 		}
 	}
@@ -299,7 +305,7 @@ void MainWindow::onTriggeredAbout()
 	msgBox.addButton(QMessageBox::Close);
 	msgBox.setWindowTitle(tr("About - Mp4 Video 1 Click"));
 	msgBox.setText(tr("<b>Mp4 Video 1 Click</b> version <b>%1</b><br/>(<b>FFMPEG</b> version <b>%2</b> with Intel hardware encoding supported).<br/>Build %3 - %4.<br/><br/>Visit our&nbsp;site:<br/>%5.").arg(strVer).arg(strVerFFMPEG).arg(__DATE__).arg(__TIME__).arg(strHomeM));
-	msgBox.setInformativeText("<small>" + tr("Copyright (c) 2017-2018 ") + trCompanyNameJuridical + ".</small>");
+	msgBox.setInformativeText("<small>" + tr("Copyright (C) 2018-2019 ") + trCompanyNameJuridical + ".</small>");
 
 	QIcon icon(":/MainWindow/Resources/favicon_source.png");
 	msgBox.setWindowIcon(icon);
@@ -349,6 +355,21 @@ bool MainWindow::isConvertToStdMp4Requested(const QStringList& lstCommandArgs)
 		return false;
 
 	if (lstCommandArgs[1].toUpper() == "-MP4")
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool MainWindow::isTranscodeToStdMp4Requested(const QStringList& lstCommandArgs)
+{
+	if (lstCommandArgs.size() != 4)
+		return false;
+
+	if (lstCommandArgs[1].toUpper() == "-TMP4")
 	{
 		return true;
 	}
@@ -721,7 +742,7 @@ void MainWindow::startExecutableToConvert(const QString& strExeFile, const QStri
 	}
 	else
 	{
-		if (!m_bExtractMp3)
+		if (!m_bExtractMp3 && !m_bTranscodeOnly)
 		{
 			m_pConsoleTextEdit->append(tr("<font color='orange'><b>Warning: Can't detect FPS, thus I take no care of it.</b></font>"));
 
@@ -936,9 +957,56 @@ void MainWindow::convertToStdMp4()
 	}
 }
 
+void MainWindow::transcodeToStdMp4()
+{
+	m_pConsoleTextEdit->append(tr("Transcoding file %1 to container mp4 (without brightness/loudness adjustment)...").arg(QFileInfo(m_strInputFilePath).fileName()));
+
+	QString strExeFile = fullPathNameToExecutable("ffmpeg.exe", isWindows64bitCompliant());
+
+	QFileInfo fiInputFile(m_strInputFilePath);
+	QString strWorkingDir = fiInputFile.absolutePath();
+
+	m_lstConstActualConvertArgs << "-i" << "INPUT"
+		<< "-c" << "copy" // Tmp make "-c:copy" to debug error situations
+		<< "-y" << "OUTPUT";
+
+	m_lstActualArgs = m_lstConstActualConvertArgs;
+	m_lstActualArgs[1] = m_strInputFilePath;
+
+	QFileInfo fiInputFilePath(m_strInputFilePath);
+	QString strFileName = fiInputFilePath.fileName();
+	QStringList lstFileNameParts = strFileName.split(QChar('.'), QString::SkipEmptyParts);
+	QString strBaseName = lstFileNameParts.join(QChar('-'));
+	QString strOutputFilePath = fiInputFilePath.absolutePath() + QChar('/') + strBaseName + QChar('-') + QString("transcodeonly.mp4");
+
+	QFileInfo fiOutputFile(strOutputFilePath);
+
+	setWindowTitle(tr("%1 -> %2 - Mp4 Video 1 Click").arg(fiInputFile.fileName()).arg(fiOutputFile.fileName()));
+
+	m_lstActualArgs[5] = strOutputFilePath;
+
+	m_lstActualShowArgs = m_lstActualArgs;
+	m_lstActualShowArgs[1] = QString("<b><font color='blue'>%1</font></b>").arg(QFileInfo(m_lstActualArgs[1]).fileName());
+	m_lstActualShowArgs[5] = QString("<b><font color='green'>%1</font></b>").arg(QFileInfo(m_lstActualArgs[5]).fileName());
+
+	if (QFileInfo(strExeFile).exists() && QFileInfo(strExeFile).isExecutable())
+	{
+		startExecutableToConvert(strExeFile, strWorkingDir);
+	}
+	else
+	{
+		m_pConsoleTextEdit->append(tr("<font color='red'><b>Error: no executable file path found: %1.</b></font>").arg(strExeFile));
+
+		if (!m_pConsoleTextEdit->isVisible() && !m_bDuringClose)
+		{
+			QMetaObject::invokeMethod(m_pShowMorePushButton, "click");
+		}
+	}
+}
+
 void MainWindow::convertToStdMp3()
 {
-	m_pConsoleTextEdit->append(tr("Converting file %1 to format mp4/h264/yuv420/aac with auto adjusting video brightness and stereo volume...").arg(QFileInfo(m_strInputFilePath).fileName()));
+	m_pConsoleTextEdit->append(tr("Converting file %1 to format mp3 cbr 320k with auto adjusting stereo volume...").arg(QFileInfo(m_strInputFilePath).fileName()));
 
 	QString strExeFile = fullPathNameToExecutable("ffmpeg.exe", isWindows64bitCompliant());
 
@@ -1073,7 +1141,7 @@ void MainWindow::onExeConvertFinished(int exitCode, QProcess::ExitStatus exitSta
 	}
 	else
 	{
-		if (!m_bExtractMp3)
+		if (!m_bExtractMp3 && !m_bTranscodeOnly)
 		{
 			if (m_lstActualArgs[7] == "libx264")
 			{
@@ -1132,9 +1200,18 @@ void MainWindow::onExeConvertFinished(int exitCode, QProcess::ExitStatus exitSta
 				}
 			}
 		}
-		else
+		else if (m_bExtractMp3)
 		{
 			m_pConsoleTextEdit->append(tr("<font color='red'><b>Error: no sound track can be extracted.</b></font>"));
+
+			if (!m_pConsoleTextEdit->isVisible() && !m_bDuringClose)
+			{
+				QMetaObject::invokeMethod(m_pShowMorePushButton, "click");
+			}
+		}
+		else if (m_bTranscodeOnly)
+		{
+			m_pConsoleTextEdit->append(tr("<font color='red'><b>Error: transcode failed.</b></font>"));
 
 			if (!m_pConsoleTextEdit->isVisible() && !m_bDuringClose)
 			{
