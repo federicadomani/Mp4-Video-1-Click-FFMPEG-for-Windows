@@ -1,5 +1,5 @@
-#define VERSION_FFMPEG_WINDOWS_1_CLICK 142
-#define VERSION_FFMPEG_ITSELF 401
+#define VERSION_FFMPEG_WINDOWS_1_CLICK 143
+#define VERSION_FFMPEG_ITSELF 402
 
 /////////////////////////////////////////////////////////
 
