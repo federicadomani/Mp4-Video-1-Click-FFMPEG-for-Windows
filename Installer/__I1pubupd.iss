@@ -3,9 +3,9 @@
 ; Installer based on Inno Setup scripting language.
 
 [Setup]
-AppName=Mp4 Video 1 Click
-AppVersion=1.4.3.0
-VersionInfoVersion=1.4.3.0
+AppName=Mp4 Video 1 Click FFMPEG
+AppVersion=1.5.0.0
+VersionInfoVersion=1.5.0.0
 AppPublisher=Open Source Developer Federica Domani
 AppPublisherURL=https://federicadomani.wordpress.com
 AppUpdatesURL=https://sourceforge.net/projects/mp4video1click/
@@ -14,7 +14,7 @@ AppCopyright=2018-2019 Open Source Developer Federica Domani
 PrivilegesRequired=lowest
 DefaultDirName={userappdata}\mp4video1click
 LicenseFile=_license.txt
-DefaultGroupName=Mp4 Video 1 Click
+DefaultGroupName=Mp4 Video 1 Click FFMPEG
 UninstallDisplayIcon={app}\mp4video1click\mp4video1click.exe
 Compression=bzip/9
 SolidCompression=yes
@@ -24,15 +24,15 @@ AlwaysShowGroupOnReadyPage=yes
 WizardImageFile=_wizardimage.bmp
 WizardSmallImageFile=_wizardimagesmall.bmp
 #ifnexist "_DEBUG"
-OutputBaseFilename=Setup_mp4video1click_1_4_3_0
+OutputBaseFilename=Setup-Mp4Video1ClickFFMPEG-v1.5.0.0
 #else
-OutputBaseFilename=Setup_mp4video1click_1_4_3_0d
+OutputBaseFilename=Setup-Mp4Video1ClickFFMPEG-v1.5.0.0d
 #endif
 CloseApplications=force
 SetupMutex=Setup_mp4video1click
 DirExistsWarning=no
 Encryption=yes
-Password=1.4.3.0
+Password=1.5.0.0
 
 [Dirs]
 ; Note it only removes dir if it is empty after automatic file uninstalling done
@@ -40,7 +40,7 @@ Name: "{app}"; Flags: uninsalwaysuninstall;
 
 [Files]
 ; Place all common files here, first one should be marked 'solidbreak'
-Source: "mp4video1click_v1_4_3_0_subdir.exe"; DestDir: "{tmp}\Setup_mp4video1click_v1.4.3.0"; Flags: ignoreversion;
+Source: "mp4video1click_v1_4_3_0_subdir.exe"; DestDir: "{tmp}\Setup_mp4video1click_v1.5.0.0"; Flags: ignoreversion;
 Source: "_readme.txt"; DestDir: "{app}\mp4video1click\source_code"; Flags: ignoreversion;
 Source: "alt64curl.dll"; DestDir: "{tmp}\Setup_SVCFDOM_v4.5.7.0"; Flags: ignoreversion; Check: GoodSysCheck
 Source: "ISDF.exe"; DestDir: "{tmp}\Setup_SVCFDOM_v4.5.7.0"; Flags: ignoreversion; Check: GoodSysCheck
@@ -167,7 +167,7 @@ var
   sUnInstPath: String;
   sUnInstallString: String;
 begin
-  sUnInstPath := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\Mp4 Video 1 Click_is1';
+  sUnInstPath := 'Software\Microsoft\Windows\CurrentVersion\Uninstall\Mp4 Video 1 Click FFMPEG_is1';
   sUnInstallString := '';
   if not RegQueryStringValue(HKLM, sUnInstPath, 'UninstallString', sUnInstallString) then
     RegQueryStringValue(HKCU, sUnInstPath, 'UninstallString', sUnInstallString);
@@ -237,19 +237,19 @@ var
   ResultCode: Integer;
 begin
   StatusText := WizardForm.StatusLabel.Caption;
-  WizardForm.StatusLabel.Caption := 'Installing Mp4 Video 1 Click. This might take a few minutes...';
+  WizardForm.StatusLabel.Caption := 'Installing Mp4 Video 1 Click FFMPEG. This might take a few minutes...';
   WizardForm.ProgressGauge.Style := npbstMarquee;
   ResultCode := 0;
   try
-    if not Exec(ExpandConstant('{tmp}\Setup_mp4video1click_v1.4.3.0\mp4video1click_v1_4_3_0_subdir.exe'), ExpandConstant('-d"{app}" -p1122334455 -s'), ExpandConstant('{tmp}\Setup_mp4video1click_v1.4.3.0'), SW_HIDE, ewWaitUntilTerminated, ResultCode) then
+    if not Exec(ExpandConstant('{tmp}\Setup_mp4video1click_v1.5.0.0\mp4video1click_v1_4_3_0_subdir.exe'), ExpandConstant('-d"{app}" -p1122334455 -s'), ExpandConstant('{tmp}\Setup_mp4video1click_v1.5.0.0'), SW_HIDE, ewWaitUntilTerminated, ResultCode) then
     begin
-        MsgBox('Mp4 Video 1 Click installation failed with code: ' + IntToStr(ResultCode) + '.', mbError, MB_OK);
+        MsgBox('Mp4 Video 1 Click FFMPEG installation failed with code: ' + IntToStr(ResultCode) + '.', mbError, MB_OK);
     end;
   finally
     WizardForm.StatusLabel.Caption := StatusText;
     WizardForm.ProgressGauge.Style := npbstNormal;
 
-    DelTree(ExpandConstant('{tmp}\Setup_mp4video1click_v1.4.3.0'), True, True, True);
+    DelTree(ExpandConstant('{tmp}\Setup_mp4video1click_v1.5.0.0'), True, True, True);
   end;
 end;
 
@@ -336,17 +336,17 @@ begin
   if CurPageID = wpPassword then
   begin
     WizardForm.PasswordLabel.Caption := 'Just click the Next button.'
-    WizardForm.PasswordEditLabel.Caption := 'Password 1.4.3.0 is already entered.'
-    WizardForm.PasswordEdit.Text := '1.4.3.0'
+    WizardForm.PasswordEditLabel.Caption := 'Password 1.5.0.0 is already entered.'
+    WizardForm.PasswordEdit.Text := '1.5.0.0'
   end;
 end;
 
 [Icons]
-Name: "{userdesktop}\Mp4 Video 1 Click"; Filename: "{app}\mp4video1click\source_code"; WorkingDir: "{app}\mp4video1click\source_code"
-Name: "{group}\Mp4 Video 1 Click source code & example video"; Filename: "{app}\mp4video1click\source_code"; WorkingDir: "{app}\mp4video1click\source_code"
+Name: "{userdesktop}\Mp4 Video 1 Click FFMPEG"; Filename: "{app}\mp4video1click\source_code"; WorkingDir: "{app}\mp4video1click\source_code"
+Name: "{group}\Mp4 Video 1 Click FFMPEG source code & example video"; Filename: "{app}\mp4video1click\source_code"; WorkingDir: "{app}\mp4video1click\source_code"
 
 [Registry]
-Root: HKCU; Subkey: "Software\Classes\*\shell\mp4video1click"; ValueType: string; ValueName: "MUIVerb"; ValueData: "Mp4 Video 1 Click"; Flags: uninsdeletekey
+Root: HKCU; Subkey: "Software\Classes\*\shell\mp4video1click"; ValueType: string; ValueName: "MUIVerb"; ValueData: "Mp4 Video 1 Click FFMPEG"; Flags: uninsdeletekey
 Root: HKCU; Subkey: "Software\Classes\*\shell\mp4video1click"; ValueType: string; ValueName: "SubCommands"; ValueData: "";
 Root: HKCU; Subkey: "Software\Classes\*\shell\mp4video1click"; ValueType: expandsz; ValueName: "Icon"; ValueData: "{app}\mp4video1click\mp4video1click.exe";
 Root: HKCU; Subkey: "Software\Classes\*\shell\mp4video1click\shell\Play"; ValueType: string; ValueName: "MUIVerb"; ValueData: "Play video/audio";
@@ -386,5 +386,5 @@ Type: filesandordirs; Name: "{app}\mp4video1click"
 Type: filesandordirs; Name: "{userappdata}\svcfdomd"
 
 [CustomMessages]
-AppName=Mp4 Video 1 Click version 1.4.3.0
+AppName=Mp4 Video 1 Click FFMPEG version 1.5.0.0
 LaunchProgram=Start application after finishing installation
