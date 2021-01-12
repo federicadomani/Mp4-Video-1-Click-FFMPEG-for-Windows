@@ -13,4 +13,4 @@ Output audio formats: anywhere-playing mp3/cbr/320k (default) or ANY.
 ## License: GPLv3
 
 This project is an old archived version of the 1 Click Torrent Youtube FFMPEG Client. New official site is here:
-### [1 Click Torrent Youtube FFMPEG Client](https://www.open-source.tech/1-Click-Torrent-Youtube-FFMPEG-Client/
+### [1 Click Torrent Youtube FFMPEG Client](https://www.open-source.tech/1-Click-Torrent-Youtube-FFMPEG-Client/)
